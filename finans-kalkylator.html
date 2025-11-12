@@ -150,11 +150,19 @@
           </div>
         </div>
 
-        <div class="compare">
-          <p>Du betalar <strong>${fmt0(extraPaidVsCash)} kr</strong> mer i rena kronor med avbetalning än med kontantköp.</p>
-          <p>Du missar dessutom en buffert på cirka <strong>${fmt0(FV)} kr</strong> som byggs upp om du sparar samma månadskostnad.</p>
-          <p class="highlight">Samlad effekt (”verklig merkostnad”): <strong>${fmt0(totalPenalty)} kr</strong>.</p>
-        </div>
+        <<div class="compare">
+  <p>Du betalar <strong>${fmt0(extraPaidVsCash)} kr</strong> mer i rena kronor med avbetalning än med kontantköp.</p>
+  <p>Du missar dessutom en buffert på cirka <strong>${fmt0(FV)} kr</strong> som byggs upp om du sparar samma månadskostnad.</p>
+
+  <hr style="margin:.5rem 0;opacity:.2">
+
+  <p><strong>Verklig ränteeffekt:</strong> skillnaden mellan betald och intjänad ränta &nbsp;≈&nbsp;
+    <strong>${fmt0(Math.abs(FV - extraPaidVsCash))} kr</strong></p>
+
+  <p><strong>Skillnad på bankkontot efter perioden:</strong>
+     <span class="ok">${fmt0(FV)} kr</span> till fördel för kontant + sparande.</p>
+</div>
+
       `;
     }
 

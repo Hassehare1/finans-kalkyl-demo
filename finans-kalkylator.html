@@ -1,283 +1,291 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="sv">
 <head>
-<meta charset="utf-8"/>
-  <!-- SEO & social media metadata -->
-<meta name="description" content="Räkna ut den verkliga kostnaden för avbetalning jämfört med att köpa kontant och spara. En smart kalkylator för privatekonomi och CFO:er som vill visa hur ränta påverkar resultatet.">
-<meta name="keywords" content="avbetalning kalkylator, köpa kontant, privatekonomi, CFO verktyg, ränta, sparande, AI kalkyl, finanskalkyl, ränta på ränta">
-<meta name="author" content="Winjo Consulting AB">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Avbetalning vs kontant + spara – Winjo Consulting</title>
 
-<!-- Open Graph (för snygga länk-förhandsvisningar på LinkedIn/Facebook) -->
-<meta property="og:title" content="Avbetalning vs Kontant + Spara – Winjo Finans-kalkylator">
-<meta property="og:description" content="Räkna ut hur mycket avbetalning egentligen kostar – och hur mycket du tjänar på att spara först och köpa sen.">
-<meta property="og:image" content="https://finans-kalkyl-demo.vercel.app/og-image.jpg">
-<meta property="og:url" content="https://finans-kalkyl-demo.vercel.app/finans-kalkylator.html">
-<meta property="og:type" content="website">
+  <!-- Bas-SEO -->
+  <meta name="description" content="Kalkylator som jämför avbetalning med kontantköp + månadssparande. Se totalkostnad, räntaeffekt och verklig skillnad på bankkontot. By Winjo Consulting AB." />
+  <meta name="keywords" content="avbetalning, kontantköp, kalkylator, ränta, månadssparande, finans, ekonomi" />
+  <meta name="author" content="Winjo Consulting AB" />
+  <link rel="canonical" href="https://finans-kalkyl-demo.vercel.app/finans-kalkylator.html" />
 
-<!-- Twitter card (valfritt) -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Avbetalning vs Kontant + Spara – Winjo Finans-kalkylator">
-<meta name="twitter:description" content="Smart kalkylator som visar skillnaden mellan att spara först och köpa sen.">
-<meta name="twitter:image" content="https://finans-kalkyl-demo.vercel.app/og-image.jpg">
+  <!-- Open Graph / Social -->
+  <meta property="og:title" content="Avbetalning vs kontant + spara – kalkylator" />
+  <meta property="og:description" content="Räkna ut verkliga kostnaden för avbetalning och jämför med kontantköp + sparande." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://finans-kalkyl-demo.vercel.app/finans-kalkylator.html" />
 
-<!-- Favicon (liten ikon i fliken) -->
-<link rel="icon" href="https://finans-kalkyl-demo.vercel.app/favicon.ico" type="image/x-icon">
-
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Avbetalning vs kontant + spara</title>
-<style>
-  :root{
-    --bg:#0b1020;--card:#111a36;--soft:#0f1530;--line:#23304d;
-    --text:#eaf1fb;--muted:#9fb3c8;--hint:#7aa2ff;
-    --ok:#2ecc71;--warn:#ffb648;--bad:#ff6b6b;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);
-       font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-  .wrap{max-width:1100px;margin:auto;padding:28px}
-  h1{margin:0 0 6px;font-size:clamp(22px,2.7vw,32px)}
-  .sub{margin:0 0 22px;color:var(--muted)}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 10px 24px rgba(0,0,0,.25)}
-  .grid{display:grid;gap:12px}
-  @media(min-width:860px){ .grid.two{grid-template-columns:1fr 1fr} .grid.three{grid-template-columns:repeat(3,1fr)} }
-  label{display:flex;gap:6px;align-items:center;font-size:.92rem;color:var(--muted)}
-  .i{display:inline-flex;width:16px;height:16px;border-radius:50%;background:#1b2553;color:var(--hint);
-      align-items:center;justify-content:center;font-size:.78rem;cursor:help}
-  input{width:100%;padding:11px 12px;background:var(--soft);color:var(--text);border:1px solid var(--line);
-        border-radius:10px;outline:none}
-  input:focus{border-color:var(--hint);box-shadow:0 0 0 4px rgba(122,162,255,.15)}
-  .row{display:flex;gap:8px;flex-wrap:wrap}
-  .btn{padding:11px 16px;border-radius:10px;border:1px solid var(--line);background:#1a2450;color:var(--text);font-weight:700;cursor:pointer}
-  .btn:hover{filter:brightness(1.06)}
-  .btn.sec{background:transparent}
-  .hr{height:1px;background:var(--line);margin:12px 0}
-  .kpis{display:grid;gap:10px}
-  @media(min-width:860px){ .kpis{grid-template-columns:repeat(3,1fr)} }
-  .kpi{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:6px}
-  .kpi h3{margin:0 0 2px;font-size:1rem}
-  .v{font-weight:850;font-size:1.24rem}
-  .ok{color:var(--ok)} .bad{color:var(--bad)} .muted{color:var(--muted)}
-  .callout{background:#0f1838;border:1px solid var(--line);border-radius:12px;padding:12px}
-  .tiny{font-size:.9rem;color:var(--muted)}
-  details{background:#0f1530;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
-  summary{cursor:pointer;color:var(--muted);font-weight:700}
-  ul{margin:8px 0 0 20px}
-  .title{display:flex;align-items:center;gap:10px}
-  .highlight{padding:6px 10px;background:#0e1a44;border:1px dashed var(--line);border-radius:10px}
-</style>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#0f1a2b;
+      --muted:#8aa4d2;
+      --text:#e6eefc;
+      --accent:#7aa2ff;
+      --green:#4ade80;
+      --red:#fb7185;
+      --yellow:#facc15;
+      --line:#1b2840;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,Segoe UI,Roboto,Inter,Arial}
+    .wrap{max-width:1100px;margin:48px auto;padding:0 20px}
+    h1{font-size:32px;margin:0 0 6px}
+    .tagline{color:var(--muted);margin:0 0 24px}
+    .grid{display:grid;gap:14px}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+    .inputs{grid-template-columns:repeat(4,minmax(0,1fr))}
+    label{display:block;font-size:13px;color:var(--muted);margin:0 0 6px}
+    input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:#0a1424;color:var(--text)}
+    .help{color:var(--muted);cursor:help;margin-left:6px}
+    .btns{display:flex;gap:10px;margin-top:10px}
+    button{padding:10px 14px;border:1px solid var(--line);background:#0a1424;color:var(--text);border-radius:10px;cursor:pointer}
+    button:hover{border-color:var(--accent)}
+    .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .kpi h3{margin:0 0 4px;font-size:16px;color:var(--muted)}
+    .kpi .value{font-size:22px;font-weight:700}
+    .kpi.blue .value{color:var(--accent)}
+    .kpi.green .value{color:var(--green)}
+    .kpi.red .value{color:var(--red)}
+    .cols{grid-template-columns:1fr 1fr}
+    .list{margin:0;padding-left:18px}
+    .list li{margin:.15rem 0}
+    .note{color:var(--muted);font-size:13px}
+    details{margin-top:8px}
+    summary{cursor:pointer;color:var(--muted)}
+    .seo{max-width:860px;margin:40px auto 0}
+    .seo h2{margin:18px 0 6px}
+    .seo p{color:#cfe0ff}
+    .foot{margin-top:14px;font-size:12px;color:var(--muted)}
+    @media (max-width:980px){.inputs{grid-template-columns:1fr 1fr}.cols{grid-template-columns:1fr}.kpis{grid-template-columns:1fr}}
+  </style>
 </head>
 <body>
-<div class="wrap">
-
-  <div class="title">
+  <div class="wrap">
     <h1>Avbetalning vs kontant + spara</h1>
-    <span class="highlight tiny">Pedagogiskt: visa hur “spara först, köp sen” slår avbetalning</span>
+    <p class="tagline">Fyll i ditt case. Kalkylatorn räknar direkt och presenterar utfallet i klarspråk.</p>
+
+    <!-- INMATNING -->
+    <div class="panel grid inputs">
+      <div>
+        <label>Kontantpris (kr)</label>
+        <input id="price" type="number" step="100" value="50000" />
+      </div>
+      <div>
+        <label>Handpenning (kr)</label>
+        <input id="down" type="number" step="100" value="2500" />
+      </div>
+      <div>
+        <label>Löptid (månader)</label>
+        <input id="months" type="number" min="1" value="24" />
+      </div>
+      <div>
+        <label>Årsränta, APR (%) – lånet <span class="help" title="Årlig nominell ränta för lånet (APR).">ⓘ</span></label>
+        <input id="apr" type="number" step="0.1" value="8.9" />
+      </div>
+      <div>
+        <label>Uppläggningsavgift (kr) – engång</label>
+        <input id="setupFee" type="number" step="1" value="295" />
+      </div>
+      <div>
+        <label>Adm.avgift (kr/mån)</label>
+        <input id="adminFee" type="number" step="1" value="60" />
+      </div>
+      <div>
+        <label>Beräknad månadsbetalning – ränta/principal <span class="help" title="Kalkylerad annuitetsbetalning för lånedelen (exkl. månadsavgifter).">ⓘ</span></label>
+        <input id="annuityOut" type="text" disabled />
+      </div>
+      <div>
+        <label>Totalt månadsutflöde – inkl. månadsavg.</label>
+        <input id="totalOut" type="text" disabled />
+      </div>
+
+      <div class="btns" style="grid-column:1/-1">
+        <button id="calcBtn">Beräkna</button>
+        <button id="resetBtn" type="button">Rensa</button>
+      </div>
+    </div>
+
+    <!-- KPI:ER -->
+    <div class="grid kpis" style="margin-top:14px">
+      <div class="panel kpi blue">
+        <h3>Extra kostnad vs kontant</h3>
+        <div id="extraCost" class="value">–</div>
+        <div class="note">= ränta + avgifter (engång + månadsavgifter)</div>
+      </div>
+      <div class="panel kpi red">
+        <h3>Ränteeffekt</h3>
+        <div id="interestEffect" class="value">–</div>
+        <div class="note">= betald ränta – intjänad ränta (om du väljer kontant + spara)</div>
+      </div>
+      <div class="panel kpi green">
+        <h3>Skillnad på bankkontot</h3>
+        <div id="bankDiff" class="value">–</div>
+        <div class="note">≈ buffert efter perioden (kontant + spara)</div>
+      </div>
+    </div>
+
+    <!-- RESULTATRUTOR -->
+    <div class="grid cols" style="margin-top:14px">
+      <div class="panel">
+        <h3>Avbetalning</h3>
+        <ul class="list" id="loanList">
+          <!-- fylls via JS -->
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Kontant + spara</h3>
+        <ul class="list" id="saveList">
+          <!-- fylls via JS -->
+        </ul>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:14px">
+      <h3>Det här betyder det för dig</h3>
+      <ul class="list" id="meaningList"></ul>
+      <details>
+        <summary>Hur räknar vi? (formler)</summary>
+        <div class="note" style="margin-top:8px">
+          <p><strong>Månadsränta:</strong> \( i = \frac{\text{APR}}{12} \)</p>
+          <p><strong>Annuitetsbetalning (lånedelen):</strong> \( \text{PMT} = \dfrac{i \cdot PV}{1 - (1+i)^{-n}} \), där \( PV \) är lånebeloppet och \( n \) antal månader.</p>
+          <p><strong>Buffert (framtida värde av sparande):</strong> \( FV = PMT \cdot \dfrac{(1+r)^n - 1}{r} \), där \( r \) är månadsvis avkastning.</p>
+        </div>
+      </details>
+      <p class="foot">Tips: Testa att höja/sänka avgifter och/eller avkastningen. Poängen syns snabbt: att “spara först, köp sen” bygger styrka.</p>
+    </div>
+
+    <!-- SEO-INNEHÅLL -->
+    <section class="seo panel">
+      <h2>Vad kalkylatorn visar</h2>
+      <p>
+        Den här kalkylatorn jämför att köpa på avbetalning med att köpa kontant och
+        i stället spara samma månadsbelopp som avbetalningen under lika lång tid.
+        Du ser tre nyckeltal: <em>extra kostnad vs kontant</em>, <em>ränteeffekt</em> och
+        <em>skillnad på bankkontot</em>.
+      </p>
+
+      <h2>Hur den fungerar</h2>
+      <p>
+        Ange pris, handpenning, löptid, låneränta och avgifter. Verktyget räknar ut
+        annuitetsbetalning (för ränta/principal), totalkostnad samt buffertens storlek
+        om du väljer kontant + spara. Resultaten uppdateras direkt.
+      </p>
+
+      <h2>Om Winjo Consulting</h2>
+      <p>
+        Winjo Consulting AB hjälper företag att använda AI, automation och ekonomianalys
+        för smartare beslut. Den här sidan visar hur tydlig visualisering och enkel
+        modellering kan göra ekonomi pedagogiskt – och säljande.
+      </p>
+    </section>
   </div>
-  <p class="sub">Fyll i ditt case. Kalkylatorn räknar direkt och förklarar utfallet i klarspråk.</p>
 
-  <!-- INPUTS -->
-  <div class="card">
-    <div class="grid three">
-      <div>
-        <label>Kontantpris (kr) <span class="i" title="Pris att betala idag om du köper kontant.">i</span></label>
-        <input id="price" type="number" value="50000" min="0" inputmode="decimal">
-      </div>
-      <div>
-        <label>Handpenning (kr) <span class="i" title="Om du lägger in kontantinsats och finansierar resten. 0 kr = hela priset lånas.">i</span></label>
-        <input id="down" type="number" value="2500" min="0" inputmode="decimal">
-      </div>
-      <div>
-        <label>Löptid (månader) <span class="i" title="Antal månader med avbetalning.">i</span></label>
-        <input id="months" type="number" value="24" min="1" inputmode="numeric">
-      </div>
+  <!-- ======== LOGIK ======== -->
+  <script>
+    const fmt = n => n.toLocaleString('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 2 });
 
-      <div>
-        <label>Årsränta, APR (%) – lånet <span class="i" title="Effektiv låneränta/år. Använd t.ex. 6–20 % beroende på kredit.">i</span></label>
-        <input id="apr" type="number" value="8.9" step="0.01" min="0">
-      </div>
-      <div>
-        <label>Uppläggningsavgift (kr) – engång <span class="i" title="Startavgift som ofta läggs på faktura 1.">i</span></label>
-        <input id="setup" type="number" value="295" min="0">
-      </div>
-      <div>
-        <label>Adm.avgift (kr/mån) <span class="i" title="Fasta månadsavgifter (avi, administration).">i</span></label>
-        <input id="monthFee" type="number" value="60" min="0">
-      </div>
+    function annuityPayment(pv, apr, n){
+      const i = apr/12;
+      if (i === 0) return pv / n;
+      return (i * pv) / (1 - Math.pow(1 + i, -n));
+    }
+    function futureValue(pmt, r, n){
+      if (r === 0) return pmt * n;
+      return pmt * (Math.pow(1 + r, n) - 1) / r;
+    }
 
-      <div>
-        <label>Förväntad årlig avkastning (%) – sparande <span class="i" title="Rimlig långsiktig antagning, ex. 5–7 %. Sätt 0 om du vill jämföra utan avkastning.">i</span></label>
-        <input id="aprSave" type="number" value="5" step="0.01" min="0">
-      </div>
-      <div>
-        <label>Beräknad månadsbetalning – ränta/principal <span class="i" title="Detta är själva annuiteten (utan månadsavgift). Uppdateras automatiskt.">i</span></label>
-        <input id="pmtOut" type="text" readonly>
-      </div>
-      <div>
-        <label>Totalt månadsutflöde – inkl. månadsavg. <span class="i" title="Annuitet + månadsavgift = vad som lämnar kontot varje månad vid avbetalning.">i</span></label>
-        <input id="pmtTotalOut" type="text" readonly>
-      </div>
-    </div>
+    function calculate(){
+      const price      = +document.getElementById('price').value || 0;
+      const down       = +document.getElementById('down').value || 0;
+      const months     = +document.getElementById('months').value || 1;
+      const apr        = (+document.getElementById('apr').value || 0) / 100;
+      const setupFee   = +document.getElementById('setupFee').value || 0;
+      const adminFee   = +document.getElementById('adminFee').value || 0;
 
-    <div class="row" style="margin-top:8px">
-      <button class="btn" id="calc">Beräkna</button>
-      <button class="btn sec" id="reset">Rensa</button>
-    </div>
-  </div>
+      const loanPV     = Math.max(price - down, 0);
+      const i          = apr/12;
+      const pmtLoan    = annuityPayment(loanPV, apr, months);           // endast ränta/principal
+      const totalFlow  = pmtLoan + adminFee;                            // faktiskt månadsutflöde
 
-  <!-- KPIs -->
-  <div id="panel" class="card" style="margin-top:14px;display:none">
-    <div class="kpis">
-      <div class="kpi">
-        <h3>Extra kostnad vs kontant <span class="i" title="Det du betalar mer än kontantköp: all låneränta + uppläggning + månadsavgifter.">i</span></h3>
-        <div class="v bad" id="extraPaid">–</div>
-        <div class="tiny">= Ränta + <span class="muted">alla avgifter</span> (engång + månadsavgifter)</div>
-      </div>
+      // ränta betald (approx: ränta = total annuitetsbetalning – amortering)
+      const totalAnnuity = pmtLoan * months;
+      // amortering ≈ lånebelopp (vid standard annuitet); ränta ≈ totalAnnuity - PV
+      const interestPaid = Math.max(totalAnnuity - loanPV, 0);
 
-      <div class="kpi">
-        <h3>Ränteeffekt <span class="i" title="Betald låneränta minus intjänad ränta i ditt eget sparande. Positivt = räntan du betalar överstiger det du själv hinner tjäna.">i</span></h3>
-        <div class="v bad" id="rateGap">–</div>
-        <div class="tiny">= Betald ränta − intjänad ränta (om du köper kontant och sparar samma månadsbelopp)</div>
-      </div>
+      // Totalt betalt vid avbetalning (kontantpris + avgifter + ränta)
+      const totalLoanPaid = down + totalAnnuity + (adminFee * months) + setupFee;
 
-      <div class="kpi">
-        <h3>Skillnad på bankkontot <span class="i" title="Bufferten du har efter perioden om du köper kontant och sparar samma månadsbelopp som avbetalningen skulle varit.">i</span></h3>
-        <div class="v ok" id="buff">–</div>
-        <div class="tiny" id="monthsEquiv"></div>
-      </div>
-    </div>
+      // Kontant + spara
+      const monthlySave = totalFlow;                         // sparar samma som utflödet
+      const rSave       = 0.05 / 12;                         // default 5%/år -> kan flyttas till input vid behov
+      const buffer      = futureValue(monthlySave, rSave, months);
 
-    <div class="hr"></div>
+      // KPI:er
+      const extraCost   = (interestPaid + setupFee + adminFee * months); // allt som inte ingår i ren kontantaffär
+      const earnedInt   = buffer - monthlySave * months;                  // intjänad ränta i sparandet
+      const rateEffect  = interestPaid - Math.max(earnedInt, 0);          // “betald ränta – intjänad ränta”
+      const bankDiff    = buffer;                                         // buffert efter perioden
 
-    <div class="grid two">
-      <div class="callout">
-        <h3 style="margin:0 0 6px">Avbetalning</h3>
-        <div id="loanDetail" class="tiny"></div>
-      </div>
-      <div class="callout">
-        <h3 style="margin:0 0 6px">Kontant + spara</h3>
-        <div id="saveDetail" class="tiny"></div>
-      </div>
-    </div>
+      // Skriv ut på fälten
+      document.getElementById('annuityOut').value = fmt(pmtLoan);
+      document.getElementById('totalOut').value   = fmt(totalFlow);
 
-    <div class="hr"></div>
+      document.getElementById('extraCost').textContent     = fmt(extraCost);
+      document.getElementById('interestEffect').textContent= fmt(rateEffect);
+      document.getElementById('bankDiff').textContent      = fmt(bankDiff);
 
-    <div class="callout">
-      <h3 style="margin:0 0 6px;">Det här betyder det för dig</h3>
-      <div id="story" class="tiny"></div>
-    </div>
+      // Listor
+      const loanList = document.getElementById('loanList');
+      loanList.innerHTML = `
+        <li>Lånebelopp: <strong>${fmt(loanPV)}</strong></li>
+        <li>Månadsbetalning (ränta/principal): <strong>${fmt(pmtLoan)}</strong></li>
+        <li>Adm.avgift per månad: <strong>${fmt(adminFee)}</strong></li>
+        <li>Uppläggningsavgift: <strong>${fmt(setupFee)}</strong></li>
+        <li>Totalt betalt: <strong>${fmt(totalLoanPaid)}</strong></li>
+        <li>Varav ränta (approx): <strong>${fmt(interestPaid)}</strong></li>
+      `;
 
-    <div class="hr"></div>
+      const saveList = document.getElementById('saveList');
+      saveList.innerHTML = `
+        <li>Startar med kontantköp: <strong>${fmt(price)}</strong> (handpenning <strong>${fmt(down)}</strong>, lånebelopp <strong>${fmt(loanPV)}</strong>)</li>
+        <li>Sparar varje månad (samma som avbetalningens utflöde): <strong>${fmt(monthlySave)}</strong></li>
+        <li>Förväntad avkastning: <strong>5%/år</strong></li>
+        <li>Buffert efter ${months} mån: <strong>${fmt(buffer)}</strong> (varav intjänad ränta ungefär <strong>${fmt(earnedInt)}</strong>)</li>
+      `;
 
-    <details>
-      <summary>Hur räknar vi? (formler)</summary>
-      <ul>
-        <li>Månadsränta (lånet): <code>i = APR / 12</code></li>
-        <li>Annuitet (PMT): <code>PMT = i·PV / (1 − (1+i)<sup>−n</sup>)</code></li>
-        <li>Totalt utflöde vid avbetalning: <code>PMT·n + månadsavgift·n + uppläggning</code></li>
-        <li>Buffert (FV) när du sparar samma månadsutflöde: <code>FV = A · ((1+r)<sup>n</sup> − 1)/r</code>, <em>r = avkastning/12</em></li>
-        <li>Intjänad ränta: <code>FV − A·n</code></li>
-        <li>Ränteeffekt: <code>(PMT·n − PV) − (FV − A·n)</code></li>
-      </ul>
-    </details>
-    <p class="tiny" style="margin-top:8px">Tips: Testa att höja/lägga på avgifter och/eller sänka avkastningen. Poängen syns ändå: att spara först och köpa sen bygger styrka.</p>
-  </div>
-</div>
+      const meaning = document.getElementById('meaningList');
+      meaning.innerHTML = `
+        <li>Med <em>avbetalning</em> blir dina extra kostnader (ränta + alla avgifter) ungefär <strong>${fmt(extraCost)}</strong>.</li>
+        <li>Din <em>ränteeffekt</em> är cirka <strong>${fmt(rateEffect)}</strong> – det vill säga betald ränta minus den ränta du själv hinner tjäna genom att spara.</li>
+        <li>Väljer du <em>kontant + spara</em> bygger du efter perioden en buffert på ungefär <strong>${fmt(bankDiff)}</strong>.</li>
+      `;
+    }
 
-<script>
-  const $ = id => document.getElementById(id);
-  const fmt0 = v => v.toLocaleString('sv-SE', {maximumFractionDigits:0});
-  const fmt2 = v => v.toLocaleString('sv-SE', {minimumFractionDigits:2,maximumFractionDigits:2});
+    // UI handlers
+    document.getElementById('calcBtn').addEventListener('click', calculate);
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      ['price','down','months','apr','setupFee','adminFee'].forEach(id=>{
+        const el=document.getElementById(id);
+        el.value = el.getAttribute('value');
+      });
+      calculate();
+    });
 
-  function calc(){
-    const price    = +$('price').value||0;
-    const down     = +$('down').value||0;
-    const PV       = Math.max(price - down,0);           // lånebelopp
-    const n        = Math.max(+$('months').value||1,1);
-    const apr      = Math.max(+$('apr').value||0,0)/100; // låneränta/år
-    const i        = apr/12;
-    const setup    = +$('setup').value||0;
-    const monthFee = +$('monthFee').value||0;
-    const aprSave  = Math.max(+$('aprSave').value||0,0)/100;
-    const r        = aprSave/12;
+    // autokör vid load
+    window.addEventListener('DOMContentLoaded', calculate);
+  </script>
 
-    // Annuitetsbetalning (utan månadsavgift)
-    const PMT = i===0 ? PV/n : (i*PV)/(1-Math.pow(1+i,-n));
-    const A   = PMT + monthFee; // totala månadsutflödet vid avbetalning
-    $('pmtOut').value      = fmt2(PMT)+' kr';
-    $('pmtTotalOut').value = fmt2(A)+' kr';
-
-    // Avbetalning totals
-    const totalInstall = PMT*n + monthFee*n + setup;
-    const interestPaid = PMT*n - PV;
-    const extraPaid    = totalInstall - PV; // allt över kontant
-
-    // Kontant + spara (samma månadsutflöde A)
-    const FV = r===0 ? A*n : A*((Math.pow(1+r,n)-1)/r);
-    const contrib = A*n;
-    const interestEarned = FV - contrib;
-
-    // Ränteeffekt
-    const rateGap = interestPaid - interestEarned;
-
-    // Månader buffert motsvarar
-    const monthsEquiv = A>0 ? FV/A : 0;
-
-    // UI
-    $('extraPaid').textContent = fmt0(extraPaid)+' kr';
-    $('rateGap').textContent   = fmt0(rateGap)+' kr';
-    $('buff').textContent      = fmt0(FV)+' kr';
-    $('monthsEquiv').textContent = monthsEquiv>0
-      ? `≈ ${fmt2(monthsEquiv)} månaders betalningar`
-      : '';
-
-    $('loanDetail').innerHTML =
-      `Lånebelopp: <strong>${fmt2(PV)} kr</strong><br>
-       Månadsbetalning (ränta/principal): <strong>${fmt2(PMT)} kr</strong><br>
-       Månadsavgift: <strong>${fmt2(monthFee)} kr</strong> &nbsp;•&nbsp;
-       Uppläggning: <strong>${fmt2(setup)} kr</strong><br>
-       Totalt betalat: <strong>${fmt2(totalInstall)} kr</strong><br>
-       Varav ränta: <strong>${fmt2(interestPaid)} kr</strong>`;
-
-    $('saveDetail').innerHTML =
-      `Startar med kontantköp: <strong>${fmt2(price)} kr</strong>
-       ${down>0 ? `(handpenning ${fmt2(down)} kr, lånebelopp ${fmt2(PV)} kr)` : ''}<br>
-       Sparar varje månad (samma som avbetalning): <strong>${fmt2(A)} kr</strong><br>
-       Förväntad avkastning: <strong>${(+$('aprSave').value||0)}%/år</strong><br>
-       Buffert efter ${n} mån: <strong>${fmt2(FV)} kr</strong> (varav intjänad ränta <strong>${fmt2(interestEarned)} kr</strong>)`;
-
-    // Tolkning i klarspråk
-    const story =
-      `• Med avbetalning betalar du totalt <strong>${fmt2(extraPaid)} kr</strong> mer än kontant
-       (ränta + alla avgifter).<br>
-       • Din <em>ränteeffekt</em> är <strong>${fmt2(rateGap)} kr</strong> – det är betald ränta minus det du själv
-       hinner tjäna genom att spara.<br>
-       • Väljer du kontant + spara så har du efter ${n} mån en buffert på
-       <strong>${fmt2(FV)} kr</strong>, vilket motsvarar cirka <strong>${fmt2(monthsEquiv)}</strong> månaders
-       betalningar.`;
-
-    $('story').innerHTML = story;
-
-    $('panel').style.display = 'block';
-  }
-
-  function reset(){
-    $('price').value=50000; $('down').value=2500; $('months').value=24;
-    $('apr').value=8.9; $('setup').value=295; $('monthFee').value=60; $('aprSave').value=5;
-    $('pmtOut').value=''; $('pmtTotalOut').value='';
-    $('panel').style.display='none';
-  }
-
-  // interaktion
-  $('calc').addEventListener('click', calc);
-  $('reset').addEventListener('click', reset);
-
-  // auto-beräkning vid inmatning
-  ['price','down','months','apr','setup','monthFee','aprSave'].forEach(id=>{
-    $(id).addEventListener('input', ()=>{ try{calc()}catch{} });
-  });
-
-  // första beräkning
-  calc();
-</script>
+  <!-- Google Analytics (valfritt)
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXX'); // ersätt med ditt Measurement ID och ta bort kommentaren
+  </script>
+  -->
 </body>
 </html>

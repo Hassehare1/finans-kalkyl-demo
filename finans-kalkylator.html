@@ -7,24 +7,34 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <nav class="wrap">
-    <a href="index.html">Hem</a>
+  <nav class="topnav wrap">
+    <a href="index.html" class="muted">Hem</a>
+    <span class="spacer"></span>
+    <strong>Finanskalkylator</strong>
   </nav>
 
   <main class="wrap">
-    <h1>Köp på avbetalning vs kontant + sparande</h1>
-    <p>Idé: Om du köper <strong>kontant</strong> idag och sedan sparar samma månadsbelopp
-      som avbetalningen under lika lång tid – hur står det sig mot att köpa på
-      <strong>avbetalning</strong>?</p>
+    <header class="page-head">
+      <h1>Köp på avbetalning vs kontant + sparande</h1>
+      <p class="muted">
+        Ange pris, ränta och löptid – kalkylatorn beräknar månadskostnaden (annuitet) och jämför
+        med att köpa kontant och spara samma belopp varje månad.
+      </p>
+    </header>
 
     <section class="card">
+      <h2>Inmatning</h2>
       <div class="grid">
         <label>Kontantpris (kr)
           <input id="price" type="number" inputmode="decimal" value="20000" />
         </label>
 
-        <label>Månadsbelopp vid avbetalning (kr)
-          <input id="pmt" type="number" inputmode="decimal" value="950" />
+        <label>Handpenning (kr)
+          <input id="down" type="number" inputmode="decimal" value="0" />
+        </label>
+
+        <label>Effektiv ränta (% / år)
+          <input id="aprPct" type="number" inputmode="decimal" value="7.9" />
         </label>
 
         <label>Löptid (månader)
@@ -32,14 +42,14 @@
         </label>
 
         <label>Uppläggningsavgift (kr)
-          <input id="setupFee" type="number" inputmode="decimal" value="0" />
+          <input id="setupFee" type="number" inputmode="decimal" value="295" />
         </label>
 
         <label>Administrationsavgift / månad (kr)
-          <input id="monthlyFee" type="number" inputmode="decimal" value="0" />
+          <input id="monthlyFee" type="number" inputmode="decimal" value="39" />
         </label>
 
-        <label>Förväntad årlig avkastning på sparandet (%)
+        <label>Förväntad årlig avkastning vid sparande (%)
           <input id="annualYieldPct" type="number" inputmode="decimal" value="5" />
         </label>
       </div>
@@ -48,86 +58,102 @@
         <button id="calc" class="btn">Beräkna</button>
         <button id="reset" class="btn btn-ghost">Rensa</button>
       </div>
-
-      <div id="out" class="result"></div>
     </section>
 
-    <details class="wrap">
-      <summary>Vad räknar vi på?</summary>
-      <ul>
-        <li><strong>Avbetalning:</strong> Totalt betalt = (månadsbelopp + månadsavgift) × månader + uppläggningsavgift.</li>
-        <li><strong>Kontant + spara:</strong> Du betalar kontantpriset nu och sparar
-            samma månadsbelopp som avbetalningen i <em>månader</em> månader med
-            månadsvis ränta = årlig avkastning / 12. Slutvärdet (FV) av
-            sparandet beräknas med formeln för annuiteter:
-            FV = PMT × ((1 + i)<sup>n</sup> − 1) / i.</li>
-        <li><strong>Poängen:</strong> Skillnaden i förmögenhet efter perioden visar
-            hur mycket dyrare avbetalning blir än kontant + sparande.</li>
-      </ul>
+    <section id="out" class="result card"></section>
+
+    <details class="card">
+      <summary>Hur räknar vi? (formler)</summary>
+      <div class="muted small">
+        <p><strong>Månadsränta</strong> \( i = \frac{\text{APR}}{12} \).</p>
+        <p><strong>Annuitetsbetalning</strong> \( \text{PMT} =
+          \dfrac{i \cdot PV}{1 - (1+i)^{-n}} \), där \( PV \) är beloppet som
+          finansieras (kontantpris − handpenning) och \( n \) antal månader.</p>
+        <p><strong>Totalt utbetalt vid avbetalning</strong> =
+          \( \text{PMT} \times n + \text{setupFee} + \text{monthlyFee} \times n \).</p>
+        <p><strong>Slutvärde av sparande</strong> (månadsvis insättning = avbetalningens
+          totala månadsbelopp):
+          \( \text{FV} = \text{PMT\_tot} \times \dfrac{(1+j)^{n}-1}{j} \) där \( j = \frac{\text{Årlig avkastning}}{12} \).</p>
+        <p><strong>Skillnader</strong> visas både i rena betalda kronor (extra betalt) och i “förmögenhetseffekt”
+          genom missad buffert vid avbetalning.</p>
+      </div>
     </details>
   </main>
 
   <script>
-    function fmt(x){ return x.toLocaleString('sv-SE', {maximumFractionDigits: 0}); }
-    function fmt2(x){ return x.toLocaleString('sv-SE', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
+    const fmt0 = x => x.toLocaleString('sv-SE', {maximumFractionDigits:0});
+    const fmt2 = x => x.toLocaleString('sv-SE', {minimumFractionDigits:2, maximumFractionDigits:2});
 
-    function calc() {
+    function annuityPMT(PV, i, n){
+      if (n <= 0) return 0;
+      if (i === 0) return PV / n;
+      return (i * PV) / (1 - Math.pow(1 + i, -n));
+    }
+
+    function futureValueOfSeries(pmt, j, n){
+      if (n <= 0) return 0;
+      if (j === 0) return pmt * n;
+      return pmt * ((Math.pow(1 + j, n) - 1) / j);
+    }
+
+    function calc(){
       const price       = +document.getElementById('price').value || 0;
-      const pmt         = +document.getElementById('pmt').value || 0;
-      const months      = Math.max(1, +(document.getElementById('months').value || 0));
+      const down        = +document.getElementById('down').value || 0;
+      const aprPct      = +document.getElementById('aprPct').value || 0;
+      const months      = Math.max(1, +document.getElementById('months').value || 0);
       const setupFee    = +document.getElementById('setupFee').value || 0;
       const monthlyFee  = +document.getElementById('monthlyFee').value || 0;
       const annualYield = (+document.getElementById('annualYieldPct').value || 0) / 100;
 
-      // --- Avbetalning: total utbetalning ---
-      const totalInstallment = (pmt + monthlyFee) * months + setupFee;
+      const PV = Math.max(0, price - down);       // belopp som finansieras
+      const i  = aprPct / 100 / 12;               // månadsränta
+      const pmt = annuityPMT(PV, i, months);      // annuitet exkl. månadsavgift
+      const pmtTotal = pmt + monthlyFee;          // faktisk månadskostnad
 
-      // --- Kontant + spara: betala priset nu, spara pmt/mån i months månader ---
-      const i = annualYield / 12; // månadsränta
-      const FV = i === 0 ? pmt * months : pmt * ((Math.pow(1 + i, months) - 1) / i);
+      const totalInstallment = pmt * months + setupFee + monthlyFee * months;
 
-      // Förmögenhetseffekt: efter months månader
-      // Avbetalning: ingen buffert kvar => 0 kr
-      // Kontant + spara: buffert = FV
-      const wealthDiff = FV; // hur mycket bättre kontant+spar blir i rena pengar
+      // Kontant + spara: betala priset nu, spara pmtTotal varje månad i months
+      const j   = annualYield / 12;
+      const FV  = futureValueOfSeries(pmtTotal, j, months);
 
-      // "Verklig merkostnad" av avbetalning relativt kontant+spar:
-      // du slipper betala priset upfront, men du missar bufferten FV och betalar mer totalt.
-      const extraPaidVsCash = totalInstallment - price; // rena kronor utöver kontantpris
-      // Total effekt om man jämför slutläget efter months:
-      // Avbetalning: du har betalat totalInstallment och har 0 kr buffert.
-      // Kontant+spar: du har betalat price och har FV buffert.
-      // Differens = (totalInstallment - 0) - (price - FV) = extraPaidVsCash + FV
-      const totalPenalty = extraPaidVsCash + FV;
+      const extraPaidVsCash = totalInstallment - price;       // rena extra-kronor
+      const totalPenalty    = extraPaidVsCash + FV;           // “verklig merkostnad”
 
       const out = document.getElementById('out');
       out.innerHTML = `
         <h2>Resultat</h2>
+
         <div class="grid-2">
           <div class="box">
             <h3>Avbetalning</h3>
-            <p>Totalt betalt: <strong>${fmt(totalInstallment)} kr</strong></p>
-            <ul>
-              <li>Månadsbelopp: ${fmt(pmt)} kr</li>
-              <li>Månadsavgift: ${fmt(monthlyFee)} kr</li>
-              <li>Månader: ${months}</li>
-              <li>Uppläggningsavgift: ${fmt(setupFee)} kr</li>
+            <ul class="kv">
+              <li><span>Belopp som finansieras</span><strong>${fmt0(PV)} kr</strong></li>
+              <li><span>Månadsränta (≈)</span><strong>${fmt2(i*100)} %</strong></li>
+              <li><span>Annuitetsbetalning</span><strong>${fmt0(pmt)} kr/mån</strong></li>
+              <li><span>Månadsavgift</span><strong>${fmt0(monthlyFee)} kr/mån</strong></li>
+              <li><span>Totalt per månad</span><strong>${fmt0(pmtTotal)} kr/mån</strong></li>
+              <li><span>Löptid</span><strong>${months} mån</strong></li>
+              <li><span>Uppläggningsavgift</span><strong>${fmt0(setupFee)} kr</strong></li>
             </ul>
+            <p class="sum">Totalt betalt: <strong>${fmt0(totalInstallment)} kr</strong></p>
           </div>
+
           <div class="box">
             <h3>Kontant + spara</h3>
-            <p>Kontantpris: <strong>${fmt(price)} kr</strong></p>
-            <p>Buffert efter ${months} mån med ${fmt2(annualYield*100)}%/år: <strong>${fmt(Math.round(FV))} kr</strong></p>
+            <ul class="kv">
+              <li><span>Kontantpris</span><strong>${fmt0(price)} kr</strong></li>
+              <li><span>Månadsinsättning</span><strong>${fmt0(pmtTotal)} kr</strong></li>
+              <li><span>Förväntad årlig avkastning</span><strong>${fmt2(annualYield*100)} %</strong></li>
+              <li><span>Löptid</span><strong>${months} mån</strong></li>
+            </ul>
+            <p class="sum">Buffert efter ${months} mån: <strong>${fmt0(FV)} kr</strong></p>
           </div>
         </div>
 
         <div class="compare">
-          <p>Du betalar <strong>${fmt(Math.round(extraPaidVsCash))} kr</strong> mer
-             i rena pengar med avbetalning jämfört med kontant.</p>
-          <p>Och du missar en buffert på ungefär <strong>${fmt(Math.round(wealthDiff))} kr</strong>
-             (om du köper kontant och sparar samma månadsbelopp).</p>
-          <p class="highlight">Samlad effekt (”verklig merkostnad”): 
-             <strong>${fmt(Math.round(totalPenalty))} kr</strong>.</p>
+          <p>Du betalar <strong>${fmt0(extraPaidVsCash)} kr</strong> mer i rena kronor med avbetalning än med kontantköp.</p>
+          <p>Du missar dessutom en buffert på cirka <strong>${fmt0(FV)} kr</strong> som byggs upp om du sparar samma månadskostnad.</p>
+          <p class="highlight">Samlad effekt (”verklig merkostnad”): <strong>${fmt0(totalPenalty)} kr</strong>.</p>
         </div>
       `;
     }
@@ -138,7 +164,7 @@
       document.getElementById('out').innerHTML = '';
     });
 
-    // Förifylld snabbdemo
+    // auto-run för demo
     calc();
   </script>
 </body>
